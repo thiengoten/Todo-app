@@ -1,15 +1,12 @@
-import { CheckCircleIcon, DeleteIcon } from '@chakra-ui/icons'
+import { DeleteIcon } from '@chakra-ui/icons'
 import {
     Input,
     InputGroup,
     InputLeftElement,
     Button,
     Text,
-    Flex,
-    UnorderedList,
     ListItem,
     List,
-    ListIcon,
 } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,19 +17,25 @@ function App() {
     const [todo, setTodo] = useState('')
     const dispatch = useDispatch()
     const input = useRef()
+    const [isUpdate, setIsUpdate] = useState(false)
     const todos = useSelector((state) => state.todos)
 
     const handleSummit = () => {
+        if (!todo) return alert('nhap lai di')
         dispatch(addTodo(todo))
         setTodo('')
         input.current.focus()
     }
-    const handleDelete = (index) => {
-        dispatch(removeTodo(index))
+
+    const handleDelete = (id, e) => {
+        console.log(e.stopPropagation())
+        dispatch(removeTodo(id))
     }
+
     const handleClick = (e) => {
-        console.log(e.target)
+        console.dir((e.target.style.color = '#BA94D1'))
         input.current.focus()
+        setIsUpdate(true)
     }
     return (
         <>
@@ -72,25 +75,40 @@ function App() {
                         value={todo}
                         ref={input}
                     />
-                    <Button
-                        ml='10px'
-                        bgGradient='linear(to-r, teal.500, green.500)'
-                        color='white'
-                        _hover={{
-                            bgGradient: 'linear(to-r, red.500, yellow.500)',
-                        }}
-                        size='lg'
-                        onClick={handleSummit}
-                    >
-                        Add Todo
-                    </Button>
+                    {isUpdate ? (
+                        <Button
+                            ml='10px'
+                            bgGradient='linear(to-r, green.200, pink.500)'
+                            color='white'
+                            _hover={{
+                                bgGradient: 'linear(to-l, #7928CA, #FF0080)',
+                            }}
+                            size='lg'
+                            onClick={handleSummit}
+                        >
+                            Edit
+                        </Button>
+                    ) : (
+                        <Button
+                            ml='10px'
+                            bgGradient='linear(to-r, teal.500, green.500)'
+                            color='white'
+                            _hover={{
+                                bgGradient: 'linear(to-r, red.500, yellow.500)',
+                            }}
+                            size='lg'
+                            onClick={handleSummit}
+                        >
+                            Add Todo
+                        </Button>
+                    )}
                 </InputGroup>
             </div>
             {todos.length > 0 ? (
                 <List>
-                    {todos.map((todo, index) => (
+                    {todos.map(({ id, text }) => (
                         <ListItem
-                            key={index}
+                            key={id}
                             fontSize='3xl'
                             color='teal.300'
                             className='todo-text'
@@ -100,14 +118,14 @@ function App() {
                                 color: 'purple.400',
                             }}
                         >
-                            {todo}
+                            {text}
                             <DeleteIcon
                                 ml='20px'
                                 _hover={{
                                     cursor: 'pointer',
                                     color: 'pink.400',
                                 }}
-                                onClick={() => handleDelete(index)}
+                                onClick={(e) => handleDelete(id, e)}
                             />
                         </ListItem>
                     ))}
