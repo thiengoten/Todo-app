@@ -8,17 +8,28 @@ import {
     ListItem,
     List,
 } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import './App.css'
-import { addTodo, removeTodo } from './redux/todo/TodoSlice'
+import {
+    addTodo,
+    initTodo,
+    removeTodo,
+    updateTodo,
+} from './redux/todo/TodoSlice'
 
 function App() {
     const [todo, setTodo] = useState('')
+    const [id, setId] = useState()
+    const [isUpdate, setIsUpdate] = useState(false)
     const dispatch = useDispatch()
     const input = useRef()
-    const [isUpdate, setIsUpdate] = useState(false)
     const todos = useSelector((state) => state.todos)
+
+    useEffect(() => {
+        const data = JSON.parse(localStorage.getItem('todos'))
+        if (data) dispatch(initTodo(data))
+    }, [])
 
     const handleSummit = () => {
         if (!todo) return alert('nhap lai di')
@@ -26,16 +37,23 @@ function App() {
         setTodo('')
         input.current.focus()
     }
+    const handleUpdate = () => {
+        if (!todo) return alert('nhap lai di')
+        setTodo('')
+        dispatch(updateTodo({ todo, id }))
+        setIsUpdate(false)
+    }
 
     const handleDelete = (id, e) => {
         console.log(e.stopPropagation())
         dispatch(removeTodo(id))
     }
 
-    const handleClick = (e) => {
-        console.dir((e.target.style.color = '#BA94D1'))
+    const handleClick = (text, id, e) => {
         input.current.focus()
+        setTodo(text)
         setIsUpdate(true)
+        setId(id)
     }
     return (
         <>
@@ -84,7 +102,7 @@ function App() {
                                 bgGradient: 'linear(to-l, #7928CA, #FF0080)',
                             }}
                             size='lg'
-                            onClick={handleSummit}
+                            onClick={handleUpdate}
                         >
                             Edit
                         </Button>
@@ -112,7 +130,7 @@ function App() {
                             fontSize='3xl'
                             color='teal.300'
                             className='todo-text'
-                            onClick={handleClick}
+                            onClick={(e) => handleClick(text, id, e)}
                             _hover={{
                                 cursor: 'pointer',
                                 color: 'purple.400',

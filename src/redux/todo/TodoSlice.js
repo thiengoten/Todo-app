@@ -13,17 +13,28 @@ export const todoSlice = createSlice({
             state.push(todos)
             localStorage.setItem('todos', JSON.stringify(state))
         },
+        initTodo: (state, action) => {
+            return [...action.payload]
+        },
         removeTodo: (state, action) => {
             const result = state.filter((item) => item.id !== action.payload)
             localStorage.setItem('todos', JSON.stringify(result))
             return result
         },
         updateTodo: (state, action) => {
-            state.splice(action.payload.id, 1, action.payload.text)
+            const result = state.map((item) => {
+                const y =
+                    item.id === action.payload.id
+                        ? { ...item, text: action.payload.todo }
+                        : item
+                return y
+            })
+            localStorage.setItem('todos', JSON.stringify(result))
+            return result
         },
     },
 })
 
-export const { addTodo, removeTodo, updateTodo } = todoSlice.actions
+export const { addTodo, removeTodo, updateTodo, initTodo } = todoSlice.actions
 
 export default todoSlice.reducer
