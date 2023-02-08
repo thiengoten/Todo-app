@@ -14,6 +14,7 @@ const Test = () => {
 
     return (
         <>
+            <div>This is test</div>
             <div>{count}</div>
             {console.log('re-render')}
         </>
